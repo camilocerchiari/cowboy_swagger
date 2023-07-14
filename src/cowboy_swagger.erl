@@ -419,15 +419,26 @@ build_definition_array(Name, Properties) when is_binary(Name) ->
                              , Type ::binary()
                              ) ->
   NewSpec :: jsx:json_term().
+% prepare_new_global_spec(CurrentSpec, Definitions, Type) ->
+%   case swagger_version() of
+%     swagger_2_0 ->
+%       CurrentSpec#{<<"definitions">> => Definitions
+%                   };
+%     openapi_3_0_0 ->
+%       Components = maps:get(<<"components">>, CurrentSpec, #{}),
+%       CurrentSpec#{<<"components">> =>
+%                         Components#{ Type => Definitions
+%                      }
+%                   }
+%   end.
+% 
+% % WARNING: This is a workaround:  duplicate definitions to be compatible with swagger_2.0 ans openapi_3.0.0 at the same time
 prepare_new_global_spec(CurrentSpec, Definitions, Type) ->
-  case swagger_version() of
-    swagger_2_0 ->
-      CurrentSpec#{<<"definitions">> => Definitions
-                  };
-    openapi_3_0_0 ->
-      Components = maps:get(<<"components">>, CurrentSpec, #{}),
-      CurrentSpec#{<<"components">> =>
-                        Components#{ Type => Definitions
-                     }
-                  }
-  end.
+  Components = maps:get(<<"components">>, CurrentSpec, #{}),
+  CurrentSpec#{
+    <<"definitions">> => Definitions,
+    <<"components">> =>
+        Components#{
+          Type => Definitions
+        }
+  }.
